@@ -149,6 +149,11 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 	public void physics(double dt) {
 		if(currentLevel != null && currentLevel.conveyors != null) {
 			for(ConveyorSegment s : currentLevel.conveyors) {
+				if (s.box != null) {
+					s.box.hasMovedThisTick = false;
+				}
+			}
+			for(ConveyorSegment s : currentLevel.conveyors) {
 				s.physics();
 			}
 

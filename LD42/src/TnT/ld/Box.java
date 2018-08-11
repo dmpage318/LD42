@@ -16,6 +16,8 @@ public class Box {
 	Box ghostParent;
 	boolean ghostFromVehicle;
 	
+	boolean hasMovedThisTick = false;
+	
 	public Box(int maxWidth, int maxHeight, Level level) {
 		width = maxWidth; 
 		height = maxHeight;

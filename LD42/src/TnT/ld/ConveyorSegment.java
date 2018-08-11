@@ -34,8 +34,9 @@ public class ConveyorSegment {
 	
 	
 	public void paint(Graphics2D g) {
-		g.setColor(on ? Color.GREEN : Color.BLACK);
-		g.drawRect(x, y, width, height);
+//		g.setColor(on ? Color.GREEN : Color.BLACK);
+		g.setColor(Color.BLACK);
+		g.fillRect(x, y, width, height);
 		Shape currentClip = g.getClip();
 		g.setClip(x, y, width, height);
 		if(dx != 0) {
@@ -65,8 +66,8 @@ public class ConveyorSegment {
 				}	
 			}
 		}
-		g.setColor(Color.RED);
-		g.drawString("dx: "+dx+" dy: "+dy, x+20, y+20);
+//		g.setColor(Color.RED);
+//		g.drawString("dx: "+dx+" dy: "+dy, x+20, y+20);
 		g.setClip(currentClip);
 		//NO DIAGONAL!
 	}
@@ -76,12 +77,13 @@ public class ConveyorSegment {
 	public void physics() {
 		if(on) {
 			startDrawingX -= 1; 
-			if(startDrawingX < -2 * BAR_WIDTH) {
+			if(startDrawingX <= -2 * BAR_WIDTH) {
 				startDrawingX = 0;
 			}
-			if(box != null && on) {
+			if(box != null && !box.hasMovedThisTick) {
 				box.x += dx;
 				box.y += dy;
+				box.hasMovedThisTick = true;
 				if(next != null && next.contains(box)) {
 					if(next.box != null) {
 						System.out.println("YOU SUCK!!!!!!!");
