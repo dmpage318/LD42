@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -29,13 +30,22 @@ import TnT.ld.util.Looper;
 public class LD42 implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	public static final LD42 theLD = new LD42();
 	public static final String NAME = "NAME ME PLZ";
+	public static final int width = 1024, height = 768;
 	
 	public Looper gloop, ploop, aloop;
 	
 	public JFrame frame;
 	public JPanel panel;
 	public VolatileImage vimg;
-	public int width = 1024, height = 768;
+	public double scale;
+	public int barWidth, barHeight;
+	
+	Level currentLevel;
+	
+	public State gameState;
+	enum State {
+		MAIN, LEVEL
+	}
 	
 	private LD42() {}
 	public static void main(String[] args) {
@@ -50,9 +60,12 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		panel.setPreferredSize(new Dimension(width, height));
 		panel.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
-				width = panel.getWidth();
-				height = panel.getHeight();
-				vimg = panel.createVolatileImage(width, height);
+				int pw = panel.getWidth();
+				int ph = panel.getHeight();
+				scale = Math.min((double)pw/width, (double)ph/height);
+				barWidth = (int) (pw-width*scale)/2;
+				barHeight = (int) (ph-height*scale)/2;
+				vimg = panel.createVolatileImage(pw, ph);
 			}
 		});
 		panel.addMouseListener(this);
@@ -69,20 +82,39 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		gloop = new Looper(this::graphics, 120).start();
 		ploop = new Looper(this::physics, 100).start();
 		aloop = new Looper(this::animate, 100).start();
+		
+		currentLevel = new Level();
+		gameState = State.LEVEL;
 	}
 	
+	double frameCountTime = 0;
+	int frames = 0;
+	int fps = 0;
 	public void graphics(double dt) {
 		if (vimg == null) return;
 		Graphics2D g = vimg.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
+		frames++;
+		if ((frameCountTime += dt) > 1) {
+			fps = frames;
+			frameCountTime = 0;
+			frames = 0;
+		}
+		
+		int pw = panel.getWidth();
+		int ph = panel.getHeight();
+		g.translate(barWidth, barHeight);
+		g.scale(scale, scale);
+		
+		//------------------------------------------------
+		// Graphics scaled to default windows size
+		//------------------------------------------------
 		// TODO: graphics
 		g.setColor(Color.white);
 		g.fillRect(0, 0, width, height);
 		
-		
-		
-		
+		if (gameState == State.LEVEL && currentLevel != null) currentLevel.paint(g);
 		
 		Animation a;
 		for (int i = 0; i < activeAnimations.size(); i++) {
@@ -93,6 +125,18 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 			}
 			a.paint(g);
 		}
+		//-----------------------------------------------
+		
+		g.scale(1/scale, 1/scale);
+		g.translate(-barWidth, -barHeight);
+		g.setColor(Color.black);
+		g.fillRect(0, 0, (int) barWidth, ph);
+		g.fillRect(pw - (int) barWidth, 0, (int) barWidth, ph);
+		g.fillRect(0, 0, pw, (int) barHeight);
+		g.fillRect(0, ph - (int) barHeight, pw, (int) barHeight);
+		
+		g.setColor(Color.red);
+		g.drawString(fps+"", 1, 11);
 		
 		g.dispose();
 		g = (Graphics2D) panel.getGraphics();
@@ -124,16 +168,39 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		}
 	}
 
+	public void mousePressed(MouseEvent e) {
+		if (gameState == State.LEVEL && currentLevel != null) {
+			int x = e.getX();
+			int y = e.getY();
+			if (x >= barWidth && x < panel.getWidth()-barWidth && y >= barHeight && y < panel.getHeight()-barHeight)
+				currentLevel.mousePressed((int)((x-barWidth)/scale), (int)((y-barHeight)/scale));
+		}
+	}
+	public void mouseReleased(MouseEvent e) {
+		if (gameState == State.LEVEL && currentLevel != null) {
+			int x = e.getX();
+			int y = e.getY();
+			if (x >= barWidth && x < panel.getWidth()-barWidth && y >= barHeight && y < panel.getHeight()-barHeight)
+				currentLevel.mouseReleased((int)((x-barWidth)/scale), (int)((y-barHeight)/scale));
+		}
+	}
+	public void mouseMoved(MouseEvent e) {
+		if (gameState == State.LEVEL && currentLevel != null) {
+			int x = e.getX();
+			int y = e.getY();
+			if (x >= barWidth && x < panel.getWidth()-barWidth && y >= barHeight && y < panel.getHeight()-barHeight)
+				currentLevel.mouseMoved((int)((x-barWidth)/scale), (int)((y-barHeight)/scale));
+		}
+	}
+	public void mouseDragged(MouseEvent e) {
+		mouseMoved(e);
+	}
 	public void keyPressed(KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
 	public void keyTyped(KeyEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
 	public void mouseExited(MouseEvent e) {}
-	public void mousePressed(MouseEvent e) {}
-	public void mouseReleased(MouseEvent e) {}
-	public void mouseDragged(MouseEvent e) {}
-	public void mouseMoved(MouseEvent e) {}
 	public void mouseWheelMoved(MouseWheelEvent e) {}
 	
 }
