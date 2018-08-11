@@ -13,15 +13,33 @@ public class Level {
 	Box mouseCapturedBox;
 	Point mouseCaptureOffset;
 	boolean readyToDrop = true;
+	ArrayList<ConveyorSegment> conveyors = new ArrayList<>();
 	
 	public Level() {
 		vehicle = new Vehicle(10, 8, this);
+		int dx, dy;
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 5; j++) {
 			Box b = new Box(3, 3, this);
-			b.x = 20 + 140*i;
-			b.y = 20 + 140*j;
+			b.x = 20 + ConveyorSegment.width*i;
+			b.y = 20 + ConveyorSegment.height*j;
 			freeBoxes.add(b);
+			dx = 0;
+			dy = 0;
+			if (j % 2 == 0) {
+				if (i % 2 == 0) {
+					dx = 1;
+				} else {
+					dy = -1;
+				}
+			} else {
+				if (i % 2 == 0) {
+					dy = -1;
+				} else {
+					dx = -1;
+				}
+			}
+			conveyors.add(new ConveyorSegment(20 + ConveyorSegment.width * i, 20 + ConveyorSegment.height * j, dx, dy));
 			}
 		}
 	}
@@ -31,6 +49,9 @@ public class Level {
 		vehicle.paint(g);
 		for (int i = 0; i < freeBoxes.size(); i++)
 			freeBoxes.get(i).paint(g);
+		for (int i = 0; i < conveyors.size(); i++) {
+			conveyors.get(i).paint(g);
+		}
 		if (mouseCapturedBox != null) mouseCapturedBox.paint(g);
 	}
 	
