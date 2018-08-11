@@ -3,6 +3,7 @@ package TnT.ld;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 /**
  * My idea is that we chain together conveyor segments so that way we can make whatever shape conveyor belt we want by chaining these together.
@@ -35,7 +36,8 @@ public class ConveyorSegment {
 	public void paint(Graphics2D g) {
 		g.setColor(on ? Color.GREEN : Color.BLACK);
 		g.drawRect(x, y, width, height);
-		
+		Shape currentClip = g.getClip();
+		g.setClip(x, y, width, height);
 		if(dx != 0) {
 			boolean tog = false;
 			if(dx < 0) {
@@ -65,7 +67,7 @@ public class ConveyorSegment {
 		}
 		g.setColor(Color.RED);
 		g.drawString("dx: "+dx+" dy: "+dy, x+20, y+20);
-		
+		g.setClip(currentClip);
 		//NO DIAGONAL!
 	}
 	public boolean contains(Box b) {	
