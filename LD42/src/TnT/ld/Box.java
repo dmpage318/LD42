@@ -2,6 +2,7 @@ package TnT.ld;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -10,7 +11,10 @@ public class Box {
 	int width, height;
 	boolean[][] shape;
 	Level level;
-	boolean lifted;
+	
+	boolean ghost;
+	Box ghostParent;
+	boolean ghostFromVehicle;
 	
 	public Box(int maxWidth, int maxHeight, Level level) {
 		width = maxWidth; 
@@ -55,8 +59,19 @@ public class Box {
 		}
 	}
 	
+	public Box(Box b) {
+		x = b.x;
+		y = b.y;
+		width = b.width;
+		height = b.height;
+		level = b.level;
+		shape = new boolean[width][];
+		for (int i = 0; i < width; i++) 
+			shape[i] = Arrays.copyOf(b.shape[i], height);
+	}
+	
 	public synchronized void paint(Graphics2D g) {
-		Color fillColor = new Color(0xcc, 0xa4, 0x83, lifted?128:255);
+		Color fillColor = new Color(0xcc, 0xa4, 0x83, ghost?128:255);
 		Color lineColor = fillColor.darker();
 		g.setStroke(new BasicStroke(2f));
 		for (int i = 0; i < width; i++) {
@@ -76,6 +91,13 @@ public class Box {
 				}
 			}
 		}
+	}
+	
+	public Box ghostBox() {
+		Box g = new Box(this);
+		g.ghost = true;
+		g.ghostParent = this;
+		return g;
 	}
 	
 	public boolean contains(int x, int y) {

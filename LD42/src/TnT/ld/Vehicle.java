@@ -116,4 +116,27 @@ public class Vehicle {
 				if (b.shape[i][j]) filled[loc.x+i][loc.y+j] = false;
 		return b;
 	}
+	
+	public void remove(Box b) {
+		remove(packedBoxes.indexOf(b));
+	}
+	
+	public Box ghost(int index) {
+		Box b = packedBoxes.get(index);
+		Point loc = packedLocation.get(index);
+		for (int i = 0; i < b.width; i++)
+			for (int j = 0; j < b.height; j++)
+				if (b.shape[i][j]) filled[loc.x+i][loc.y+j] = false;
+		Box ghost = b.ghostBox();
+		ghost.ghostFromVehicle = true;
+		return ghost;
+	}
+	
+	public void cancelGhost(Box ghost) {
+		Box b = ghost.ghostParent;
+		Point loc = packedLocation.get(packedBoxes.indexOf(b));
+		for (int i = 0; i < b.width; i++)
+			for (int j = 0; j < b.height; j++)
+				if (b.shape[i][j]) filled[loc.x+i][loc.y+j] = true;
+	}
 }

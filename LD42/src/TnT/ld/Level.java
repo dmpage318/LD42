@@ -11,8 +11,8 @@ public class Level {
 	int cellSize = 40;
 	Vehicle vehicle;
 	List<Box> freeBoxes = new ArrayList<>();
-	Box mouseCapturedBox;
-	Point mouseCaptureOffset;
+	Box ghostBox;
+	Point ghostBoxOffset;
 	boolean readyToDrop = true;
 	ArrayList<ConveyorSegment> conveyors = new ArrayList<>();
 	ConveyorSegment first = null;
@@ -78,7 +78,7 @@ public class Level {
 	}
 	
 	public void paint(Graphics2D g) {
-		vehicle.hover(mouseCapturedBox);
+		vehicle.hover(ghostBox);
 		vehicle.paint(g);
 		
 		for (int i = 0; i < conveyors.size(); i++) {
@@ -87,58 +87,63 @@ public class Level {
 		for (int i = 0; i < freeBoxes.size(); i++) {
 			freeBoxes.get(i).paint(g);
 		}
-		if (mouseCapturedBox != null) mouseCapturedBox.paint(g);
+		if (ghostBox != null) ghostBox.paint(g);
 	}
 	
 	public void mousePressed(int x, int y) {
-		if (mouseCapturedBox != null) {
+		if (ghostBox != null) {
 			// already holding a box
 			readyToDrop = true;
 			return;
 		}
 		for (int i = 0; i < freeBoxes.size(); i++)
 			if (freeBoxes.get(i).contains(x, y)) {
-				mouseCapturedBox = freeBoxes.remove(i);
+				ghostBox = freeBoxes.get(i).ghostBox();
 				break;
 			}
-		if (mouseCapturedBox == null)
+		if (ghostBox == null)
 			for (int i = 0; i < vehicle.packedBoxes.size(); i++)
 				if (vehicle.packedBoxes.get(i).contains(x, y)) {
-					mouseCapturedBox = vehicle.remove(i);
+					ghostBox = vehicle.ghost(i);
 					break;
 				}
-		if (mouseCapturedBox != null) {
-			mouseCapturedBox.lifted = true;
-			mouseCaptureOffset = new Point(x-mouseCapturedBox.x, y-mouseCapturedBox.y);
+		if (ghostBox != null) {
+			ghostBox.ghost = true;
+			ghostBoxOffset = new Point(x-ghostBox.x, y-ghostBox.y);
 		}
 		readyToDrop = false;
 	}
 	
 	public void mouseReleased(int x, int y) {
-		if (mouseCapturedBox != null && readyToDrop) {
-			Point pv = vehicle.fit(mouseCapturedBox);
-			if (pv != null) vehicle.add(mouseCapturedBox, pv);
-			else freeBoxes.add(mouseCapturedBox);
-			mouseCapturedBox.lifted = false;
-			mouseCapturedBox = null;
+		if (ghostBox != null && readyToDrop) {
+			Point pv = vehicle.fit(ghostBox);
+			if (pv != null) {
+				if (ghostBox.ghostFromVehicle) vehicle.remove(ghostBox.ghostParent);
+				else freeBoxes.remove(ghostBox.ghostParent);
+				vehicle.add(ghostBox, pv);
+				ghostBox.ghost = false;
+			} else if (ghostBox.ghostFromVehicle) {
+				vehicle.cancelGhost(ghostBox);
+			}
+			ghostBox = null;
 		}
 	}
 	
 	public void mouseMoved(int x, int y) {
-		if (mouseCapturedBox != null) {
-			mouseCapturedBox.x = x - mouseCaptureOffset.x;
-			mouseCapturedBox.y = y - mouseCaptureOffset.y;
+		if (ghostBox != null) {
+			ghostBox.x = x - ghostBoxOffset.x;
+			ghostBox.y = y - ghostBoxOffset.y;
 		}
 		readyToDrop = true;
 	}
 
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_TAB) {
-			if (mouseCapturedBox != null) {
-				int cx = mouseCapturedBox.x + mouseCaptureOffset.x;
-				int cy = mouseCapturedBox.y + mouseCaptureOffset.y;
-				mouseCapturedBox.rotateRight(cx, cy);
-				mouseCaptureOffset = new Point(cx-mouseCapturedBox.x, cy-mouseCapturedBox.y);
+			if (ghostBox != null) {
+				int cx = ghostBox.x + ghostBoxOffset.x;
+				int cy = ghostBox.y + ghostBoxOffset.y;
+				ghostBox.rotateRight(cx, cy);
+				ghostBoxOffset = new Point(cx-ghostBox.x, cy-ghostBox.y);
 			}
 		}
 	}
