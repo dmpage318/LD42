@@ -139,13 +139,10 @@ public class Level {
 				if (ghostBox.ghostFromVehicle) vehicle.remove(ghostBox.ghostParent);
 				else {
 					freeBoxes.remove(ghostBox.ghostParent);
-					if(ghostBox.ghostParent == null) {
-						System.out.println("PARENT NULL");
-						if(ghostBox.ghostParent.conveyor == null) {
-							System.out.println("Conveyor null");
-						}
+					if(ghostBox.ghostParent != null && ghostBox.ghostParent.conveyor != null) {
+						ghostBox.ghostParent.conveyor.boxRemoved();
 					}
-					ghostBox.ghostParent.conveyor.boxRemoved();
+					
 				}
 				vehicle.add(ghostBox, pv);
 				ghostBox.ghost = false;

@@ -88,6 +88,9 @@ public class ConveyorSegment {
 				if(next != null && next.contains(box)) {
 					if(next.box != null) {
 						System.out.println("YOU SUCK!!!!!!!");
+						System.out.println(this);
+						System.out.println(this.box);
+						Thread.currentThread().suspend();
 					}
 					next.setBox(box);
 					box = null;
