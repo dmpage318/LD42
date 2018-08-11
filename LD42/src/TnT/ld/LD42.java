@@ -145,7 +145,7 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		g.dispose();
 	}
 	
-	double timeToNextBox = 5;
+	double timeToNextBox = 2.5;
 	public void physics(double dt) {
 		if(currentLevel != null && currentLevel.conveyors != null) {
 			for(ConveyorSegment s : currentLevel.conveyors) {
@@ -160,7 +160,7 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 			timeToNextBox -= dt;
 			if(timeToNextBox <= 0) {
 				currentLevel.newBox();
-				timeToNextBox = 5;
+				timeToNextBox = 2.5;
 			}
 		}
 		

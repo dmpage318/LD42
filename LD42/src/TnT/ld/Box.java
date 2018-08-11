@@ -15,7 +15,7 @@ public class Box {
 	boolean ghost;
 	Box ghostParent;
 	boolean ghostFromVehicle;
-	
+	public ConveyorSegment conveyor;
 	boolean hasMovedThisTick = false;
 	
 	public Box(int maxWidth, int maxHeight, Level level) {

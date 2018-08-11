@@ -21,6 +21,7 @@ public class ConveyorSegment {
 	public ConveyorSegment next;
 	public static int BAR_WIDTH = 10;
 	public int startDrawingX = 0;
+	public ConveyorSegment prev;
 	public ConveyorSegment(int x, int y, int dx, int dy) {
 		this.x = x;
 		this.y = y;
@@ -88,7 +89,7 @@ public class ConveyorSegment {
 					if(next.box != null) {
 						System.out.println("YOU SUCK!!!!!!!");
 					}
-					next.box = box;
+					next.setBox(box);
 					box = null;
 					if(!next.on && !permanentOn) {
 						on = false;
@@ -96,5 +97,25 @@ public class ConveyorSegment {
 				}
 			}
 		}
+	}
+	public void boxRemoved() {
+		box.conveyor = null;
+		this.box = null;
+		if(!this.on) {
+			
+			ConveyorSegment back = prev;
+			while(back != null && !back.permanentOn && !back.on) {
+				back.on = true;
+				back = back.prev;
+			}
+		}
+	}
+	public void setNext(ConveyorSegment conveyorSegment) {
+		next = conveyorSegment;
+		conveyorSegment.prev = this;
+	}
+	public void setBox(Box b) {
+		this.box = b;
+		b.conveyor = this;
 	}
 }
