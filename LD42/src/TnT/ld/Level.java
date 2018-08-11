@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class Level {
@@ -131,15 +132,62 @@ public class Level {
 		}
 		readyToDrop = true;
 	}
+	
+	public void shipIt() {
+		int fill = 0;
+		for (int i = 0; i < vehicle.filled.length; i++) {
+			for (int j = 0; j < vehicle.filled[i].length; j++) {
+				if (vehicle.filled[i][j]) {
+					fill++;
+				}
+			}
+		}
+		int missed = vehicle.filled.length * vehicle.filled[0].length - fill;
+		System.out.println("Old vehicle had " + fill +" filled and " + missed + " missed");
+		ArrayList<Point> sizes = new ArrayList<Point>();
+		int ceil = 15;
+		for (int i = 3; i <= ceil; i++) {
+			for (int j = Math.max((int) Math.floor(fill / i) - 1, 3); j <= ceil; j++) {
+				if (i * j >= fill) { //only add it if it is big enough
+					sizes.add(new Point(i, j));
+				}
+			}
+		}
+		sizes.sort((x,y)->{ //sort based on the one that is closest to our size
+			return x.x*x.y - y.x*y.y;
+		});
+		final int initWidth = sizes.get(0).x;
+		final int initHeight = sizes.get(0).y;
+		Point ideal = sizes.stream().filter((x)->{ //get the ones that match our size
+			return x.x*x.y == initWidth * initHeight;
+		}).sorted((x,y)->{ //get the most square one if there are multiple
+			return Math.abs(x.x-x.y) - Math.abs(y.x - y.y);
+		}).collect(Collectors.toList()).get(0);
+		int width = ideal.x;
+		int height = ideal.y;
+		if (height > width) {
+			int temp = width;
+			width = height;
+			height = temp;
+		}
+		System.out.println("New Vehicle has size: " + width + ", " + height);
+		Vehicle nv = new Vehicle(width, height, this);
+		vehicle = nv;
+	}
 
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_TAB) {
+		switch(e.getKeyCode()) {
+		case  KeyEvent.VK_TAB: //rotate
 			if (mouseCapturedBox != null) {
 				int cx = mouseCapturedBox.x + mouseCaptureOffset.x;
 				int cy = mouseCapturedBox.y + mouseCaptureOffset.y;
 				mouseCapturedBox.rotateRight(cx, cy);
 				mouseCaptureOffset = new Point(cx-mouseCapturedBox.x, cy-mouseCapturedBox.y);
 			}
+			break;
+		case KeyEvent.VK_SPACE: //ship it!
+			shipIt();
+			break;
 		}
 	}
 	

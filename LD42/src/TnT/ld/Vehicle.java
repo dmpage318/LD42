@@ -24,7 +24,7 @@ public class Vehicle {
 		filled = new boolean[width][height];
 		
 		// TODO: come up with the location. start offscreen then move in?
-		x = LD42.width - width*level.cellSize;
+		x = LD42.width - width*level.cellSize - 10;
 		y = (LD42.height - height*level.cellSize)/2;
 	}
 	
