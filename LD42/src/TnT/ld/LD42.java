@@ -25,6 +25,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import TnT.ld.animation.Animation;
+import TnT.ld.animation.ConveyorAnimator;
 import TnT.ld.util.Looper;
 
 public class LD42 implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {

@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import TnT.ld.animation.ConveyorAnimator;
+
 public class Level {
 	int cellSize = 40;
 	Vehicle vehicle;
@@ -20,28 +22,34 @@ public class Level {
 		int dx, dy;
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 5; j++) {
-			Box b = new Box(3, 3, this);
-			b.x = 20 + ConveyorSegment.width*i;
-			b.y = 20 + ConveyorSegment.height*j;
-			freeBoxes.add(b);
-			dx = 0;
-			dy = 0;
-			if (j % 2 == 0) {
-				if (i % 2 == 0) {
-					dx = 1;
+				Box b = new Box(3, 3, this);
+				b.x = 20 + ConveyorSegment.width*i;
+				b.y = 20 + ConveyorSegment.height*j;
+				freeBoxes.add(b);
+				dx = 0;
+				dy = 0;
+				if (j % 2 == 1) {
+					if (i % 2 == 0) {
+						dx = 1;
+					} else {
+						dy = -1;
+					}
 				} else {
-					dy = -1;
+					if (i % 2 == 0) {
+						dy = -1;
+					} else {
+						dx = -1;
+					}
 				}
-			} else {
-				if (i % 2 == 0) {
-					dy = -1;
-				} else {
-					dx = -1;
-				}
-			}
-			conveyors.add(new ConveyorSegment(20 + ConveyorSegment.width * i, 20 + ConveyorSegment.height * j, dx, dy));
+				conveyors.add(new ConveyorSegment(20 + ConveyorSegment.width * i, 20 + ConveyorSegment.height * j, dx, dy));
 			}
 		}
+		
+		//Add permanent ones across the top.
+		for(int x = 20 + 2 * ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
+			conveyors.add(new ConveyorSegment(x, 20, -1, 0, true));			
+		}
+		LD42.theLD.newAnimations.add(new ConveyorAnimator(this.conveyors));
 	}
 	
 	public void paint(Graphics2D g) {
