@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import TnT.ld.animation.ConveyorAnimator;
 
 public class Level {
 	int cellSize = 40;
@@ -16,49 +15,77 @@ public class Level {
 	Point mouseCaptureOffset;
 	boolean readyToDrop = true;
 	ArrayList<ConveyorSegment> conveyors = new ArrayList<>();
-	
+	ConveyorSegment first = null;
 	public Level() {
 		vehicle = new Vehicle(10, 8, this);
 		int dx, dy;
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 5; j++) {
-				Box b = new Box(3, 3, this);
-				b.x = 20 + ConveyorSegment.width*i;
-				b.y = 20 + ConveyorSegment.height*j;
-				freeBoxes.add(b);
+//				Box b = new Box(3, 3, this);
+//				b.x = 20 + ConveyorSegment.width*i;
+//				b.y = 20 + ConveyorSegment.height*j;
+//				freeBoxes.add(b);
 				dx = 0;
 				dy = 0;
 				if (j % 2 == 1) {
 					if (i % 2 == 0) {
 						dx = 1;
 					} else {
-						dy = -1;
+						dy = 1;
 					}
 				} else {
 					if (i % 2 == 0) {
-						dy = -1;
+						dy = 1;
 					} else {
 						dx = -1;
 					}
 				}
-				conveyors.add(new ConveyorSegment(20 + ConveyorSegment.width * i, 20 + ConveyorSegment.height * j, dx, dy));
+				ConveyorSegment c = new ConveyorSegment(20 + ConveyorSegment.width * i, 20 + ConveyorSegment.height * j, dx, dy);
+				if(i == 0 && j == 4) {
+					c.on = false;
+				}
+				conveyors.add(c);
 			}
 		}
+		conveyors.get(5).next = conveyors.get(0);
+		conveyors.get(0).next = conveyors.get(1);
+		conveyors.get(1).next = conveyors.get(6);
+		conveyors.get(6).next = conveyors.get(7);
+		conveyors.get(7).next = conveyors.get(2);
+		conveyors.get(2).next = conveyors.get(3);
+		conveyors.get(3).next = conveyors.get(8);
+		conveyors.get(8).next = conveyors.get(9);
+		conveyors.get(9).next = conveyors.get(4);
 		
 		//Add permanent ones across the top.
+		ConveyorSegment last = null;
 		for(int x = 20 + 2 * ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
-			conveyors.add(new ConveyorSegment(x, 20, -1, 0, true));			
+			ConveyorSegment next = new ConveyorSegment(x, 20, -1, 0, true);
+			next.next = last == null ? conveyors.get(5) : last;
+			last = next;
+			conveyors.add(last);		
 		}
-		LD42.theLD.newAnimations.add(new ConveyorAnimator(this.conveyors));
+		first = last; //the last one added is the first to get boxes
+		newBox();
+	}
+	
+	public void newBox() {
+		Box b = new Box(3, 3, this);
+		b.x = first.x + 5;
+		b.y = first.y + 5;
+		freeBoxes.add(b);
+		first.box = b;
 	}
 	
 	public void paint(Graphics2D g) {
 		vehicle.hover(mouseCapturedBox);
 		vehicle.paint(g);
-		for (int i = 0; i < freeBoxes.size(); i++)
-			freeBoxes.get(i).paint(g);
+		
 		for (int i = 0; i < conveyors.size(); i++) {
 			conveyors.get(i).paint(g);
+		}
+		for (int i = 0; i < freeBoxes.size(); i++) {
+			freeBoxes.get(i).paint(g);
 		}
 		if (mouseCapturedBox != null) mouseCapturedBox.paint(g);
 	}
