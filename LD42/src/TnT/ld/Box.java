@@ -59,6 +59,13 @@ public class Box {
 				queued[p.x][p.y+1] = true;
 			}
 		}
+		
+		width = maxx-minx+1;
+		height = maxy-miny+1;
+		boolean[][] newShape = new boolean[width][height];
+		for (int i = 0; i < width; i++)
+			newShape[i] = Arrays.copyOfRange(shape[i+minx], miny, maxy+1);
+		shape = newShape;
 	}
 	
 	public Box(Box b) {
