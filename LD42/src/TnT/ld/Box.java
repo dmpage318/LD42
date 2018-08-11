@@ -11,7 +11,7 @@ public class Box {
 	boolean[][] shape;
 	Level level;
 	boolean lifted;
-	
+	boolean hasMovedThisTick = false;
 	public Box(int maxWidth, int maxHeight, Level level) {
 		width = maxWidth; 
 		height = maxHeight;
