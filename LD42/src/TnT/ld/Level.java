@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
-	int cellSize = 25;
+	int cellSize = 40;
 	Vehicle vehicle;
 	List<Box> freeBoxes = new ArrayList<>();
 	Box mouseCapturedBox;
@@ -18,8 +18,8 @@ public class Level {
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 5; j++) {
 			Box b = new Box(3, 3, this);
-			b.x = 50 + 100*i;
-			b.y = 50 + 100*j;
+			b.x = 20 + 140*i;
+			b.y = 20 + 140*j;
 			freeBoxes.add(b);
 			}
 		}
@@ -34,6 +34,7 @@ public class Level {
 	
 	public void mousePressed(int x, int y) {
 		if (mouseCapturedBox != null) {
+			// already holding a box
 			readyToDrop = true;
 			return;
 		}

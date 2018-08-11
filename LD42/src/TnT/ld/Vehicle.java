@@ -29,6 +29,7 @@ public class Vehicle {
 	}
 	
 	public void paint(Graphics2D g) {
+		// draw the grid
 		g.setStroke(new BasicStroke(1f));
 		g.setColor(Color.LIGHT_GRAY);
 		for (int i = 0; i < width; i++) {
@@ -36,6 +37,8 @@ public class Vehicle {
 				g.drawRect(x + i*level.cellSize, y + j*level.cellSize, level.cellSize, level.cellSize);
 			}
 		}
+		
+		// update the location of boxes packed into the grid and draw them
 		for (int i = 0; i < packedBoxes.size(); i++) {
 			Box b = packedBoxes.get(i);
 			Point loc = packedLocation.get(i);
@@ -45,6 +48,7 @@ public class Vehicle {
 		}
 		
 		if (hoverBox != null) {
+			// highlight the region a hovering box will snap to
 			Color fillColor = new Color(1, 0, 0, 0.2f);
 			Color lineColor = Color.RED;
 			g.setStroke(new BasicStroke(2f));
@@ -80,7 +84,7 @@ public class Vehicle {
 	}
 	
 	public Point fit(Box b) {
-		// perform snapping
+		// try to snap a box into the grid, returns null if not
 		int sx = (int) Math.round((double) (b.x-x)/level.cellSize);
 		int sy = (int) Math.round((double) (b.y-y)/level.cellSize);
 		for (int i = 0; i < b.width; i++) {
@@ -97,6 +101,7 @@ public class Vehicle {
 	}
 	
 	public void add(Box b, Point loc) {
+		// adds a box given its location (acquired by fit function above, x and y are cell indices)
 		packedBoxes.add(b);
 		packedLocation.add(loc);
 		for (int i = 0; i < b.width; i++)

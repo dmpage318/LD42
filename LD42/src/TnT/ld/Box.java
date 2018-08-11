@@ -18,7 +18,7 @@ public class Box {
 		this.level = level;
 		shape = new boolean[width][height];
 		
-		// generate random shape
+		// generate random shape (random-first search?)
 		int cells = (int) (Math.random() * width * height) + 1;
 		boolean[][] queued = new boolean[width][height];
 		List<Point> frontier = new ArrayList<>();
