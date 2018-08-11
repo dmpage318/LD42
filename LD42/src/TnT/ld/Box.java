@@ -25,9 +25,17 @@ public class Box {
 		Point p = new Point((int) (Math.random()*width), (int) (Math.random()*height));
 		frontier.add(p);
 		queued[p.x][p.y] = true;
+		int minx = Integer.MAX_VALUE;
+		int miny = Integer.MAX_VALUE;
+		int maxx = Integer.MIN_VALUE;
+		int maxy = Integer.MIN_VALUE;
 		for (int i = 0; i < cells; i++) {
 			p = frontier.remove((int) (Math.random()*frontier.size()));
 			shape[p.x][p.y] = true;
+			minx = Math.min(minx, p.x);
+			miny = Math.min(miny, p.y);
+			maxx = Math.max(maxx, p.x);
+			maxy = Math.max(maxy, p.y);
 			if (p.x > 0 && !queued[p.x-1][p.y]) {
 				frontier.add(new Point(p.x-1, p.y));
 				queued[p.x-1][p.y] = true;
@@ -47,7 +55,7 @@ public class Box {
 		}
 	}
 	
-	public void paint(Graphics2D g) {
+	public synchronized void paint(Graphics2D g) {
 		Color fillColor = new Color(0xcc, 0xa4, 0x83, lifted?128:255);
 		Color lineColor = fillColor.darker();
 		g.setStroke(new BasicStroke(2f));
@@ -77,4 +85,35 @@ public class Box {
 		return cx<width && cy<height && shape[cx][cy];
 	}
 	
+	public synchronized void rotateRight(int centerx, int centery) {
+		boolean[][] newShape = new boolean[height][width];
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				newShape[i][j] = shape[j][height-i-1];
+			}
+		}
+		int newx = centerx - height*level.cellSize + centery-y;
+		int newy = centery - centerx+x;
+		shape = newShape;
+		height = width;
+		width = shape.length;
+		x = newx;
+		y = newy;
+	}
+	
+	public synchronized void rotateLeft(int centerx, int centery) {
+		boolean[][] newShape = new boolean[height][width];
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				newShape[i][j] = shape[width-j-1][i];
+			}
+		}
+		int newx = centerx - centery+y;
+		int newy = centery - width*level.cellSize + centerx-x;
+		shape = newShape;
+		height = width;
+		width = shape.length;
+		x = newx;
+		y = newy;
+	}
 }

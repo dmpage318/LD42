@@ -73,6 +73,7 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		panel.addMouseWheelListener(this);
 		panel.addKeyListener(this);
 		panel.setFocusable(true);
+		panel.setFocusTraversalKeysEnabled(false);
 		panel.grabFocus();
 		frame.add(panel);
 		frame.pack();
@@ -195,7 +196,11 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 	public void mouseDragged(MouseEvent e) {
 		mouseMoved(e);
 	}
-	public void keyPressed(KeyEvent e) {}
+	public void keyPressed(KeyEvent e) {
+		if (gameState == State.LEVEL && currentLevel != null) {
+			currentLevel.keyPressed(e);
+		}
+	}
 	public void keyReleased(KeyEvent e) {}
 	public void keyTyped(KeyEvent e) {}
 	public void mouseClicked(MouseEvent e) {}

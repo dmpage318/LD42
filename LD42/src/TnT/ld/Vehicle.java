@@ -91,7 +91,6 @@ public class Vehicle {
 			for (int j = 0; j < b.height; j++) {
 				if (b.shape[i][j]) {
 					if (sx+i < 0 || sx+i >= width || sy+j < 0 || sy+j >= height || filled[sx+i][sy+j]) {
-						System.out.println(i + " " + j + " " + (sx+i) + " " + (sy+j));
 						return null;
 					}
 				}

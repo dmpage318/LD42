@@ -2,6 +2,7 @@ package TnT.ld;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class Level {
 	}
 	
 	public void paint(Graphics2D g) {
+		vehicle.hover(mouseCapturedBox);
 		vehicle.paint(g);
 		for (int i = 0; i < freeBoxes.size(); i++)
 			freeBoxes.get(i).paint(g);
@@ -52,7 +54,6 @@ public class Level {
 		if (mouseCapturedBox != null) {
 			mouseCapturedBox.lifted = true;
 			mouseCaptureOffset = new Point(x-mouseCapturedBox.x, y-mouseCapturedBox.y);
-			System.out.println("captured a box");
 		}
 		readyToDrop = false;
 	}
@@ -64,18 +65,26 @@ public class Level {
 			else freeBoxes.add(mouseCapturedBox);
 			mouseCapturedBox.lifted = false;
 			mouseCapturedBox = null;
-			vehicle.hover(null);
 		}
 	}
 	
 	public void mouseMoved(int x, int y) {
-		System.out.println("moved");
 		if (mouseCapturedBox != null) {
 			mouseCapturedBox.x = x - mouseCaptureOffset.x;
 			mouseCapturedBox.y = y - mouseCaptureOffset.y;
-			vehicle.hover(mouseCapturedBox);
 		}
 		readyToDrop = true;
+	}
+
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_TAB) {
+			if (mouseCapturedBox != null) {
+				int cx = mouseCapturedBox.x + mouseCaptureOffset.x;
+				int cy = mouseCapturedBox.y + mouseCaptureOffset.y;
+				mouseCapturedBox.rotateRight(cx, cy);
+				mouseCaptureOffset = new Point(cx-mouseCapturedBox.x, cy-mouseCapturedBox.y);
+			}
+		}
 	}
 	
 }
