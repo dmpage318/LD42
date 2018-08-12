@@ -89,7 +89,7 @@ public class Level {
 	
 	public void newBox() {
 		Box b = new Box(3, 3, this);
-		b.x = first.x + 5;
+		b.x = first.x + 5 + (3-b.width)*cellSize;
 		b.y = first.y + 5;
 		freeBoxes.add(b);
 		first.setBox(b);
