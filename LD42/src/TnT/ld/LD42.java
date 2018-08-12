@@ -145,25 +145,10 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		g.dispose();
 	}
 	
-	double timeToNextBox = 2.5;
 	public void physics(double dt) {
-		if(currentLevel != null && currentLevel.conveyors != null) {
-			for(ConveyorSegment s : currentLevel.conveyors) {
-				if (s.box != null) {
-					s.box.hasMovedThisTick = false;
-				}
-			}
-			for(ConveyorSegment s : currentLevel.conveyors) {
-				s.physics();
-			}
-
-			timeToNextBox -= dt;
-			if(timeToNextBox <= 0) {
-				currentLevel.newBox();
-				timeToNextBox = 2.5;
-			}
+		if(currentLevel != null) {
+			currentLevel.physics(dt);
 		}
-		
 	}
 	
 	public Queue<Animation> newAnimations = new LinkedList<>();

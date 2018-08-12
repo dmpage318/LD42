@@ -11,7 +11,7 @@ public class Box {
 	int width, height;
 	boolean[][] shape;
 	Level level;
-	
+
 	boolean ghost;
 	Box ghostParent;
 	boolean ghostFromVehicle;
@@ -114,6 +114,25 @@ public class Box {
 		int cx = (x-this.x)/level.cellSize;
 		int cy = (y-this.y)/level.cellSize;
 		return cx<width && cy<height && shape[cx][cy];
+	}
+	
+	public boolean intersects(Box box) {
+		int cs = level.cellSize;
+		for (int i1 = 0; i1 < width; i1++) {
+			for (int j1 = 0; j1 < height; j1++) {
+				if (!shape[i1][j1]) continue;
+				for (int i2 = 0; i2 < box.width; i2++) {
+					for (int j2 = 0; j2 < box.height; j2++) {
+						if (box.shape[i2][j2] && 
+								new Rectangle(x+i1*cs, y+j1*cs, cs, cs).intersects(
+										new Rectangle(box.x+i2*cs, box.y+j2*cs, cs, cs))) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	public synchronized void rotateRight(int centerx, int centery) {

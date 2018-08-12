@@ -2,6 +2,7 @@ package TnT.ld;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,15 +63,11 @@ public class Level {
 		conveyors.get(9).setNext(conveyors.get(4));
 		*/
 		for(int i = 4; i >= 0; i--) {
-			ConveyorSegment c = new ConveyorSegment(20, 20 + (ConveyorSegment.height+1) * i, 0, 1, i == 4);
-			if(i == 4) {
-				c.on = false;
-			}
+			ConveyorSegment c = new ConveyorSegment(20, 20 + (ConveyorSegment.height+1) * i, 0, 1, false);
 			if(i < 4) {
 				c.setNext(conveyors.get(3-i));
 			}
 			conveyors.add(c);
-			
 		}
 		
 		
@@ -108,6 +105,35 @@ public class Level {
 		if (ghostBox != null) ghostBox.paint(g);
 	}
 	
+	double timeToNextBox = 2.5;
+	public void physics(double dt) {
+		if (conveyors != null) {
+			for (int i = 0; i < freeBoxes.size(); i++) { 
+				freeBoxes.get(i).hasMovedThisTick = false;
+			}
+			for (ConveyorSegment s : conveyors) {
+				s.on = s.permanentOn || s.boxes.isEmpty() || s.next != null && (s.next.on || s.next.boxes.isEmpty());
+			}
+			for (ConveyorSegment s : conveyors) {
+				s.physics();
+			}
+			for (int i = 0; i < freeBoxes.size(); i++) {
+				for (int j = 0; j < i; j++) {
+					if (freeBoxes.get(i).intersects(freeBoxes.get(j))) {
+						System.out.println("YOU SUCK!!!!!!!");
+						Thread.currentThread().suspend();
+					}
+				}
+			}
+	
+			timeToNextBox -= dt;
+			if(timeToNextBox <= 0) {
+				newBox();
+				timeToNextBox = 2.5;
+			}
+		}
+	}
+	
 	public void mousePressed(int x, int y) {
 		if (ghostBox != null) {
 			// already holding a box
@@ -140,7 +166,7 @@ public class Level {
 				else {
 					freeBoxes.remove(ghostBox.ghostParent);
 					if(ghostBox.ghostParent != null && ghostBox.ghostParent.conveyor != null) {
-						ghostBox.ghostParent.conveyor.boxRemoved();
+						ghostBox.ghostParent.conveyor.boxRemoved(ghostBox.ghostParent);
 					}
 					
 				}
