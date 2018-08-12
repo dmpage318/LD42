@@ -85,9 +85,18 @@ public class ConveyorSegment {
 				box.x += dx;
 				box.y += dy;
 				box.hasMovedThisTick = true;
+				if(next != null && this.permanentOn && !next.permanentOn) {
+					if(!next.on && next.box != null) {
+						int cs = box.level.cellSize;
+						if(new Rectangle(next.box.x, next.box.y, cs * next.box.width, cs * next.box.height).intersects(box.x, box.y, cs * box.width, cs * box.height)) {
+							System.out.println("YOU SUCK!!!!!!!");
+							Thread.currentThread().suspend();
+						}
+					}
+				}
 				if(next != null && next.contains(box)) {
 					if(next.box != null) {
-						System.out.println("YOU SUCK!!!!!!!");
+						
 						System.out.println(this);
 						System.out.println(this.box);
 						Thread.currentThread().suspend();
