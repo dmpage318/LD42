@@ -2,6 +2,7 @@ package TnT.ld;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class Level {
 	public Level() {
 		vehicle = new Vehicle(10, 8, this);
 		int dx, dy;
+		/*
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 5; j++) {
 //				Box b = new Box(3, 3, this);
@@ -48,34 +50,46 @@ public class Level {
 				conveyors.add(c);
 			}
 		}
-		conveyors.get(5).next = conveyors.get(0);
-		conveyors.get(0).next = conveyors.get(1);
-		conveyors.get(1).next = conveyors.get(6);
-		conveyors.get(6).next = conveyors.get(7);
-		conveyors.get(7).next = conveyors.get(2);
-		conveyors.get(2).next = conveyors.get(3);
-		conveyors.get(3).next = conveyors.get(8);
-		conveyors.get(8).next = conveyors.get(9);
-		conveyors.get(9).next = conveyors.get(4);
+		
+		
+		conveyors.get(5).setNext(conveyors.get(0));
+		conveyors.get(0).setNext(conveyors.get(1));
+		conveyors.get(1).setNext(conveyors.get(6));
+		conveyors.get(6).setNext(conveyors.get(7));
+		conveyors.get(7).setNext(conveyors.get(2));
+		conveyors.get(2).setNext(conveyors.get(3));
+		conveyors.get(3).setNext(conveyors.get(8));
+		conveyors.get(8).setNext(conveyors.get(9));
+		conveyors.get(9).setNext(conveyors.get(4));
+		*/
+		for(int i = 4; i >= 0; i--) {
+			ConveyorSegment c = new ConveyorSegment(20, 20 + (ConveyorSegment.height+1) * i, 0, 1, false);
+			if(i < 4) {
+				c.setNext(conveyors.get(3-i));
+			}
+			conveyors.add(c);
+		}
+		
 		
 		//Add permanent ones across the top.
 		ConveyorSegment last = null;
-		for(int x = 20 + 2 * ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
+		for(int x = 21 + ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
 			ConveyorSegment next = new ConveyorSegment(x, 20, -1, 0, true);
-			next.next = last == null ? conveyors.get(5) : last;
+			next.setNext( last == null ? conveyors.get(4) : last);
 			last = next;
 			conveyors.add(last);		
 		}
 		first = last; //the last one added is the first to get boxes
+		
 		newBox();
 	}
 	
 	public void newBox() {
 		Box b = new Box(3, 3, this);
-		b.x = first.x + 5;
+		b.x = first.x + 5 + (3-b.width)*cellSize;
 		b.y = first.y + 5;
 		freeBoxes.add(b);
-		first.box = b;
+		first.setBox(b);
 	}
 	
 	public void paint(Graphics2D g) {
@@ -89,6 +103,35 @@ public class Level {
 			freeBoxes.get(i).paint(g);
 		}
 		if (ghostBox != null) ghostBox.paint(g);
+	}
+	
+	double timeToNextBox = 2.5;
+	public void physics(double dt) {
+		if (conveyors != null) {
+			for (int i = 0; i < freeBoxes.size(); i++) { 
+				freeBoxes.get(i).hasMovedThisTick = false;
+			}
+			for (ConveyorSegment s : conveyors) {
+				s.on = s.permanentOn || s.boxes.isEmpty() || s.next != null && (s.next.on || s.next.boxes.isEmpty());
+			}
+			for (ConveyorSegment s : conveyors) {
+				s.physics();
+			}
+			for (int i = 0; i < freeBoxes.size(); i++) {
+				for (int j = 0; j < i; j++) {
+					if (freeBoxes.get(i).intersects(freeBoxes.get(j))) {
+						System.out.println("YOU SUCK!!!!!!!");
+						Thread.currentThread().suspend();
+					}
+				}
+			}
+	
+			timeToNextBox -= dt;
+			if(timeToNextBox <= 0) {
+				newBox();
+				timeToNextBox = 2.5;
+			}
+		}
 	}
 	
 	public void mousePressed(int x, int y) {
@@ -120,7 +163,13 @@ public class Level {
 			Point pv = vehicle.fit(ghostBox);
 			if (pv != null) {
 				if (ghostBox.ghostFromVehicle) vehicle.remove(ghostBox.ghostParent);
-				else freeBoxes.remove(ghostBox.ghostParent);
+				else {
+					freeBoxes.remove(ghostBox.ghostParent);
+					if(ghostBox.ghostParent != null && ghostBox.ghostParent.conveyor != null) {
+						ghostBox.ghostParent.conveyor.boxRemoved(ghostBox.ghostParent);
+					}
+					
+				}
 				vehicle.add(ghostBox, pv);
 				ghostBox.ghost = false;
 			} else if (ghostBox.ghostFromVehicle) {

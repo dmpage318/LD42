@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * My idea is that we chain together conveyor segments so that way we can make whatever shape conveyor belt we want by chaining these together.
@@ -16,11 +18,12 @@ public class ConveyorSegment {
 	public static int height = 140;
 	public int x, y, dx, dy;
 	public boolean on = true;
-	public Box box;//Own the box until it is completely contained in next.
+	public List<Box> boxes = new ArrayList<>();//Own the box until it is completely contained in next.
 	public boolean permanentOn = false;
 	public ConveyorSegment next;
 	public static int BAR_WIDTH = 10;
 	public int startDrawingX = 0;
+	public ConveyorSegment prev;
 	public ConveyorSegment(int x, int y, int dx, int dy) {
 		this.x = x;
 		this.y = y;
@@ -80,21 +83,30 @@ public class ConveyorSegment {
 			if(startDrawingX <= -2 * BAR_WIDTH) {
 				startDrawingX = 0;
 			}
-			if(box != null && !box.hasMovedThisTick) {
-				box.x += dx;
-				box.y += dy;
-				box.hasMovedThisTick = true;
-				if(next != null && next.contains(box)) {
-					if(next.box != null) {
-						System.out.println("YOU SUCK!!!!!!!");
-					}
-					next.box = box;
-					box = null;
-					if(!next.on && !permanentOn) {
-						on = false;
+			for (int i = 0; i < boxes.size(); i++) {
+				Box box = boxes.get(i);
+				if (!box.hasMovedThisTick) {
+					box.x += dx;
+					box.y += dy;
+					box.hasMovedThisTick = true;
+					if(next != null && next.contains(box)) {
+						next.setBox(box);
+						boxes.remove(i--);
 					}
 				}
 			}
 		}
+	}
+	public void boxRemoved(Box box) {
+		box.conveyor = null;
+		boxes.remove(box);
+	}
+	public void setNext(ConveyorSegment conveyorSegment) {
+		next = conveyorSegment;
+		conveyorSegment.prev = this;
+	}
+	public void setBox(Box b) {
+		boxes.add(b);
+		b.conveyor = this;
 	}
 }
