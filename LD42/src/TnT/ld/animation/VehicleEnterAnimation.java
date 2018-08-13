@@ -18,7 +18,6 @@ public class VehicleEnterAnimation extends Animation {
 		accelTime = Vehicle.speed/Vehicle.accel;
 		accelDist = Vehicle.accel * accelTime * accelTime / 2;
 		cruiseTime = (dist-accelDist)/Vehicle.speed;
-		System.out.println(accelTime + cruiseTime);
 	}
 
 	public void initialize() {}

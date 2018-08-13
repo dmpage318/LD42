@@ -22,10 +22,21 @@ public class VehicleExitAnimation extends Animation {
 		accelTime = Vehicle.speed/Vehicle.accel;
 		accelDist = Vehicle.accel * accelTime * accelTime / 2;
 		cruiseTime = (dist-accelDist)/Vehicle.speed;
-		System.out.println(accelTime + cruiseTime);
 	}
 
-	public void initialize() {}
+	public void initialize() {
+		boolean full = true;
+		f:for (int i = 0; i < vehicle.width; i++) {
+			for (int j = 0; j < vehicle.height; j++) {
+				if (!vehicle.filled[i][j]) {
+					full = false;
+					break f;
+				}
+			}
+		}
+		if (full) xTime = 0;
+	}
+	
 	public void update(double dt) {
 		double t = elapsedTime();
 		if ((t -= xTime) < 0) return;
