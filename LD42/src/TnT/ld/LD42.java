@@ -82,7 +82,7 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 
 		gloop = new Looper(this::graphics, 120).start();
 		ploop = new Looper(this::physics, 100).start();
-		aloop = new Looper(this::animate, 100).start();
+		aloop = new Looper(this::animate, 120).start();
 		
 		currentLevel = new Level();
 		gameState = State.LEVEL;

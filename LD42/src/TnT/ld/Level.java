@@ -2,24 +2,27 @@ package TnT.ld;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import TnT.ld.animation.VehicleEnterAnimation;
+import TnT.ld.animation.VehicleExitAnimation;
+
 
 public class Level {
-	int cellSize = 40;
-	Vehicle vehicle;
+	public int cellSize = 40;
+	public Vehicle vehicle;
 	List<Box> freeBoxes = new ArrayList<>();
 	Box ghostBox;
 	Point ghostBoxOffset;
 	boolean readyToDrop = true;
 	ArrayList<ConveyorSegment> conveyors = new ArrayList<>();
 	ConveyorSegment first = null;
+	public int vehicleX, vehicleY;
+	
 	public Level() {
-		vehicle = new Vehicle(10, 8, this);
 		int dx, dy;
 		/*
 		for (int i = 0; i < 2; i++) {
@@ -62,8 +65,9 @@ public class Level {
 		conveyors.get(8).setNext(conveyors.get(9));
 		conveyors.get(9).setNext(conveyors.get(4));
 		*/
+		int padding = (LD42.height-5*ConveyorSegment.height)/2;
 		for(int i = 4; i >= 0; i--) {
-			ConveyorSegment c = new ConveyorSegment(20, 20 + (ConveyorSegment.height+1) * i, 0, 1, false);
+			ConveyorSegment c = new ConveyorSegment(padding, padding + (ConveyorSegment.height+1) * i, 0, 1, false);
 			if(i < 4) {
 				c.setNext(conveyors.get(3-i));
 			}
@@ -73,15 +77,20 @@ public class Level {
 		
 		//Add permanent ones across the top.
 		ConveyorSegment last = null;
-		for(int x = 21 + ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
-			ConveyorSegment next = new ConveyorSegment(x, 20, -1, 0, true);
+		for(int x = padding+1 + ConveyorSegment.width; x < LD42.width+ConveyorSegment.width; x+= ConveyorSegment.width) {
+			ConveyorSegment next = new ConveyorSegment(x, padding, -1, 0, true);
 			next.setNext( last == null ? conveyors.get(4) : last);
 			last = next;
-			conveyors.add(last);		
+			conveyors.add(last);
 		}
 		first = last; //the last one added is the first to get boxes
 		
 		newBox();
+		
+		vehicleX = padding + ConveyorSegment.width*2; // left side of the vehicle
+		vehicleY = (LD42.height + ConveyorSegment.height)/2; // center of the vehicle
+		vehicle = new Vehicle(10, 8, this);
+		vehicle.x = vehicleX;
 	}
 	
 	public void newBox() {
@@ -227,6 +236,7 @@ public class Level {
 		System.out.println("New Vehicle has size: " + width + ", " + height);
 		Vehicle nv = new Vehicle(width, height, this);
 		vehicle = nv;
+		new VehicleEnterAnimation(this).start();
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -240,7 +250,8 @@ public class Level {
 			}
 			break;
 		case KeyEvent.VK_SPACE: //ship it!
-			shipIt();
+			//shipIt();
+			new VehicleExitAnimation(this).start();
 			break;
 		}
 	}

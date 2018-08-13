@@ -8,14 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Vehicle {
-	int x, y;
-	int width, height;
+	public int x, y;
+	public int width, height;
 	Level level;
 	List<Box> packedBoxes = new ArrayList<>();
 	List<Point> packedLocation = new ArrayList<>();
-	boolean[][] filled;
+	public boolean[][] filled;
 	Box hoverBox;
 	Point hoverLocation;
+	
+	public static double speed = 1000, accel = 4000;
 	
 	public Vehicle(int width, int height, Level level) {
 		this.width = width;
@@ -24,8 +26,8 @@ public class Vehicle {
 		filled = new boolean[width][height];
 		
 		// TODO: come up with the location. start offscreen then move in?
-		x = LD42.width - width*level.cellSize;
-		y = (LD42.height - height*level.cellSize)/2;
+		x = 0;
+		y = level.vehicleY - height*level.cellSize/2;
 	}
 	
 	public void paint(Graphics2D g) {
@@ -49,8 +51,8 @@ public class Vehicle {
 		
 		if (hoverBox != null) {
 			// highlight the region a hovering box will snap to
-			Color fillColor = new Color(1, 0, 0, 0.2f);
-			Color lineColor = Color.RED;
+			Color fillColor = new Color(0, 0.75f, 0, 0.2f);
+			Color lineColor = new Color(0, 0.75f, 0, 1);
 			g.setStroke(new BasicStroke(2f));
 			for (int i = 0; i < hoverBox.width; i++) {
 				for (int j = 0; j < hoverBox.height; j++) {
