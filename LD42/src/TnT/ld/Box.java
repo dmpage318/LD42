@@ -18,6 +18,7 @@ public class Box {
 	boolean ghostFromVehicle;
 	public ConveyorSegment conveyor;
 	boolean hasMovedThisTick = false;
+	boolean dead = false;
 
 	public Box(int maxWidth, int maxHeight, Level level) {
 		width = maxWidth; 
@@ -84,7 +85,10 @@ public class Box {
 		Color fillColor = new Color(0xcc, 0xa4, 0x83, ghost?128:255);
 		Color lineColor = fillColor.darker();
 		if (level.ghostBox != null && level.ghostBox.ghostParent == this) {
-			lineColor = Color.BLACK;
+			lineColor = Color.WHITE;
+		}
+		if (dead) {
+			lineColor = Color.RED;
 		}
 		g.setStroke(new BasicStroke(2f));
 		for (int i = 0; i < width; i++) {

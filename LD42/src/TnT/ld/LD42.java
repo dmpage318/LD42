@@ -29,7 +29,7 @@ import TnT.ld.util.Looper;
 
 public class LD42 implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	public static final LD42 theLD = new LD42();
-	public static final String NAME = "NAME ME PLZ";
+	public static final String NAME = "Ship It!";
 	public static final int width = 1024, height = 768;
 	
 	public Looper gloop, ploop, aloop;
@@ -136,8 +136,8 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		g.fillRect(0, 0, pw, (int) barHeight);
 		g.fillRect(0, ph - (int) barHeight, pw, (int) barHeight);
 		
-		g.setColor(Color.red);
-		g.drawString(fps+"", 1, 11);
+//		g.setColor(Color.red);
+//		g.drawString(fps+"", 1, 11);
 		
 		g.dispose();
 		g = (Graphics2D) panel.getGraphics();

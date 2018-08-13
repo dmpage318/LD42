@@ -75,7 +75,11 @@ public class VehicleExitAnimation extends Animation {
 	}
 
 	public void finish() {
-		level.shipIt();
+		if (!level.gameOver) {
+			level.shipIt();
+		} else {
+			level.showGameOver = true;
+		}
 	}
 	
 }

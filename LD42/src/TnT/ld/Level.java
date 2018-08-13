@@ -14,6 +14,8 @@ import TnT.ld.animation.VehicleExitAnimation;
 
 
 public class Level {
+	public boolean gameOver = false;
+	public boolean showGameOver = false;
 	public int cellSize = 40;
 	volatile int x, y;
 	public Vehicle vehicle;
@@ -111,6 +113,10 @@ public class Level {
 		g.drawString("Click to select a box and place it on the Truck. Don't let the boxes back up!", 60, 30);
 		g.setFont(new Font("Tahoma", Font.BOLD, 20));
 		g.drawString("Trucks sent: " + vehicleCount, 314, 200);
+		if (showGameOver) {
+			g.setFont(new Font("Tahoma", Font.BOLD, 40));
+			g.drawString("Game Over!", 314, 400);
+		}
 		vehicle.hover(ghostBox);
 		vehicle.paint(g);
 		
@@ -120,7 +126,12 @@ public class Level {
 		for (int i = 0; i < freeBoxes.size(); i++) {
 			freeBoxes.get(i).paint(g, i + 1);
 		}
-		if (ghostBox != null) ghostBox.paint(g, -1);
+		if (ghostBox != null) {
+			ghostBox.paint(g, -1);
+			g.setColor(Color.RED);
+			g.drawString("[tab]", 190, vehicleY);
+			g.drawString("to rotate", 190, vehicleY + 30);
+		}
 	}
 	
 	double timeToNextBox = 2.5;
@@ -138,7 +149,10 @@ public class Level {
 			for (int i = 0; i < freeBoxes.size(); i++) {
 				for (int j = 0; j < i; j++) {
 					if (freeBoxes.get(i).intersects(freeBoxes.get(j))) {
-						System.out.println("YOU SUCK!!!!!!!");
+						freeBoxes.get(i).dead = true;
+						freeBoxes.get(j).dead = true;
+						gameOver = true;
+						new VehicleExitAnimation(this).start();
 						Thread.currentThread().suspend();
 					}
 				}
@@ -244,6 +258,29 @@ public class Level {
 			width = height;
 			height = temp;
 		}
+		if (width == 3 && height == 3 && fill < 9) { //we need to see about making it smaller
+			switch (fill) {
+			case 8:
+			case 7:
+				width = 4;
+				height = 2;
+				break;
+			case 6:
+			case 5:
+				width = 3;
+				height = 2;
+				break;
+			case 4:
+				width = 2;
+				height = 2;
+				break;
+			case 3:
+			case 2:
+			case 1:
+				width = fill;
+				height = 1;
+			}
+		}
 		System.out.println("New Vehicle has size: " + width + ", " + height);
 		Vehicle nv = new Vehicle(width, height, this);
 		vehicle = nv;
@@ -263,7 +300,21 @@ public class Level {
 			break;
 		case KeyEvent.VK_SPACE: //ship it!
 			//shipIt();
-			if (!shipmentInProgress) new VehicleExitAnimation(this).start();
+			if (!shipmentInProgress) {
+				int fill = 0;
+				for (int i = 0; i < vehicle.filled.length; i++) {
+					for (int j = 0; j < vehicle.filled[i].length; j++) {
+						if (vehicle.filled[i][j]) {
+							fill++;
+						}
+					}
+				}
+				if (fill > 0) {
+					new VehicleExitAnimation(this).start();
+				} else {
+					vehicle.cannotEmpty = 150;
+				}
+			}
 			break;
 		case KeyEvent.VK_1:
 		case KeyEvent.VK_2:

@@ -20,6 +20,7 @@ public class Vehicle {
 	public boolean[][] filled;
 	Box hoverBox;
 	Point hoverLocation;
+	volatile int cannotEmpty = 0;
 	
 	public static double speed = 2000, accel = 4000;
 	
@@ -74,12 +75,14 @@ public class Vehicle {
 			g.setColor(Color.red);
 			g.setFont(new Font("Tahoma", Font.BOLD, 20));
 			g.drawString(String.format("Truck total size: %d, Amount filled: %d, Space left: %d (%.1f%%)", width * height, filledCount, width * height - filledCount, (double) 100*(width * height - filledCount) / (width*height)), x, y - 60);
-			g.drawString("Press [space] to get new truck.",  x, y + height * level.cellSize + 60);
+			g.drawString("Press [space] to get a new truck." + (cannotEmpty-- > 0 ? " Cannot send empty Truck!" : ""),  x, y + height * level.cellSize + 60);
 			g.drawString("It will be smaller based on unused space.",  x, y + height * level.cellSize + 90);
 		}
 		//wheels on the front bit
-		drawWheel(g, x + width * level.cellSize + frontWidth + (int) (engineWidth - wheelWidth) / 2, y + (height * level.cellSize - engineHeight) / 2 - wheelHeight / 2, wheelWidth, wheelHeight);
-		drawWheel(g, x + width * level.cellSize + frontWidth + (int) (engineWidth - wheelWidth) / 2, y + (height * level.cellSize - engineHeight) / 2 + engineHeight - wheelHeight / 2, wheelWidth, wheelHeight);
+		int tempWheelHeight = (engineHeight < wheelHeight) ? engineHeight : wheelHeight;
+		int tempWheelWidth = (engineWidth + 10 < wheelWidth) ? engineWidth - 10 : wheelWidth;
+		drawWheel(g, x + width * level.cellSize + frontWidth + (int) (engineWidth - tempWheelWidth) / 2, y + (height * level.cellSize - engineHeight) / 2 - tempWheelHeight / 2, tempWheelWidth, tempWheelHeight);
+		drawWheel(g, x + width * level.cellSize + frontWidth + (int) (engineWidth - tempWheelWidth) / 2, y + (height * level.cellSize - engineHeight) / 2 + engineHeight - tempWheelHeight / 2, tempWheelWidth, tempWheelHeight);
 		g.setColor(Color.GRAY);
 		Shape front = new RoundRectangle2D.Float(x + width * level.cellSize + frontWidth, y + (height * level.cellSize - engineHeight) / 2, engineWidth, engineHeight, 30, 40);
 		g.fill(front);
@@ -110,7 +113,7 @@ public class Vehicle {
 		//lights on top
 		g.setColor(Color.ORANGE);
 		for (int i = 0; i < 3; i++) {
-			g.fillOval(x + width * level.cellSize + frontWidth - level.cellSize, y + (height * level.cellSize - frontHeight) / 2 + (2+i) * frontHeight / 6 - 2, 10, 4);
+			g.fillOval(Math.max(x + width * level.cellSize + frontWidth - level.cellSize, x + width * level.cellSize), y + (height * level.cellSize - frontHeight) / 2 + (2+i) * frontHeight / 6 - 2, 10, 4);
 		}
 		g.setColor(Color.DARK_GRAY);
 		int[] windshieldX = new int[] {x + width * level.cellSize + frontWidth - level.cellSize / 2, x + width * level.cellSize + frontWidth, x + width * level.cellSize + frontWidth,x + width * level.cellSize + frontWidth - level.cellSize / 2};
