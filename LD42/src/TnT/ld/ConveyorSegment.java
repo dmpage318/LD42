@@ -43,7 +43,13 @@ public class ConveyorSegment {
 		Shape currentClip = g.getClip();
 		g.setClip(x, y, width, height);
 		Color c1 = Color.LIGHT_GRAY;
-		Color c2 = Color.LIGHT_GRAY.darker();
+		if (permanentOn) {
+			c1 = new Color(220, 190, 70);
+		}
+		if (!on) {
+			c1 = Color.GRAY;
+		}
+		Color c2 = c1.darker();
 		if(dx != 0) {
 			boolean tog = false;
 			if(dx < 0) {

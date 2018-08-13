@@ -1,6 +1,7 @@
 package TnT.ld;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,13 +18,13 @@ public class Box {
 	boolean ghostFromVehicle;
 	public ConveyorSegment conveyor;
 	boolean hasMovedThisTick = false;
-	
+
 	public Box(int maxWidth, int maxHeight, Level level) {
 		width = maxWidth; 
 		height = maxHeight;
 		this.level = level;
 		shape = new boolean[width][height];
-		
+
 		// generate random shape (random-first search?)
 		int cells = (int) (Math.random() * width * height) + 1;
 		boolean[][] queued = new boolean[width][height];
@@ -59,7 +60,7 @@ public class Box {
 				queued[p.x][p.y+1] = true;
 			}
 		}
-		
+
 		width = maxx-minx+1;
 		height = maxy-miny+1;
 		boolean[][] newShape = new boolean[width][height];
@@ -67,7 +68,7 @@ public class Box {
 			newShape[i] = Arrays.copyOfRange(shape[i+minx], miny, maxy+1);
 		shape = newShape;
 	}
-	
+
 	public Box(Box b) {
 		x = b.x;
 		y = b.y;
@@ -78,10 +79,13 @@ public class Box {
 		for (int i = 0; i < width; i++) 
 			shape[i] = Arrays.copyOf(b.shape[i], height);
 	}
-	
-	public synchronized void paint(Graphics2D g) {
+
+	public synchronized void paint(Graphics2D g, int k) {
 		Color fillColor = new Color(0xcc, 0xa4, 0x83, ghost?128:255);
 		Color lineColor = fillColor.darker();
+		if (level.ghostBox != null && level.ghostBox.ghostParent == this) {
+			lineColor = Color.BLACK;
+		}
 		g.setStroke(new BasicStroke(2f));
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -100,22 +104,37 @@ public class Box {
 				}
 			}
 		}
+		if (k >= 0) {
+			int drawX = Math.round(width / 2), drawY = Math.round(height / 2);
+			if (!shape[drawX][drawY]) {
+				d:for (int i = 0; i < width; i++) {
+					for (int j = 0; j < height; j++) {
+						if (shape[i][j]) {
+							drawX = i; 
+							drawY = j;
+							break d;
+						}
+					}
+				}
+			}
+			g.drawString(Integer.toString(k), x+drawX*level.cellSize + (level.cellSize - g.getFontMetrics().stringWidth(Integer.toString(k))) / 2, y+(drawY + 1)*level.cellSize - level.cellSize / 4);
+		}
 	}
-	
+
 	public Box ghostBox() {
 		Box g = new Box(this);
 		g.ghost = true;
 		g.ghostParent = this;
 		return g;
 	}
-	
+
 	public boolean contains(int x, int y) {
 		if (x < this.x || y < this.y) return false;
 		int cx = (x-this.x)/level.cellSize;
 		int cy = (y-this.y)/level.cellSize;
 		return cx<width && cy<height && shape[cx][cy];
 	}
-	
+
 	public boolean intersects(Box box) {
 		int cs = level.cellSize;
 		for (int i1 = 0; i1 < width; i1++) {
@@ -134,7 +153,7 @@ public class Box {
 		}
 		return false;
 	}
-	
+
 	public synchronized void rotateRight(int centerx, int centery) {
 		boolean[][] newShape = new boolean[height][width];
 		for (int i = 0; i < height; i++) {
@@ -150,7 +169,7 @@ public class Box {
 		x = newx;
 		y = newy;
 	}
-	
+
 	public synchronized void rotateLeft(int centerx, int centery) {
 		boolean[][] newShape = new boolean[height][width];
 		for (int i = 0; i < height; i++) {

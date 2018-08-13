@@ -1,5 +1,7 @@
 package TnT.ld;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -13,6 +15,7 @@ import TnT.ld.animation.VehicleExitAnimation;
 
 public class Level {
 	public int cellSize = 40;
+	volatile int x, y;
 	public Vehicle vehicle;
 	List<Box> freeBoxes = new ArrayList<>();
 	Box ghostBox;
@@ -103,6 +106,9 @@ public class Level {
 	}
 	
 	public void paint(Graphics2D g) {
+		g.setColor(Color.RED);
+		g.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		g.drawString("Click to select a box and place it on the Truck. Don't let the boxes back up!", 60, 30);
 		vehicle.hover(ghostBox);
 		vehicle.paint(g);
 		
@@ -110,9 +116,9 @@ public class Level {
 			conveyors.get(i).paint(g);
 		}
 		for (int i = 0; i < freeBoxes.size(); i++) {
-			freeBoxes.get(i).paint(g);
+			freeBoxes.get(i).paint(g, i + 1);
 		}
-		if (ghostBox != null) ghostBox.paint(g);
+		if (ghostBox != null) ghostBox.paint(g, -1);
 	}
 	
 	double timeToNextBox = 2.5;
@@ -190,6 +196,8 @@ public class Level {
 	}
 	
 	public void mouseMoved(int x, int y) {
+		this.x = x;
+		this.y = y;
 		if (ghostBox != null) {
 			ghostBox.x = x - ghostBoxOffset.x;
 			ghostBox.y = y - ghostBoxOffset.y;
@@ -254,6 +262,27 @@ public class Level {
 			//shipIt();
 			if (!shipmentInProgress) new VehicleExitAnimation(this).start();
 			break;
+		case KeyEvent.VK_1:
+		case KeyEvent.VK_2:
+		case KeyEvent.VK_3:
+		case KeyEvent.VK_4:
+		case KeyEvent.VK_5:
+		case KeyEvent.VK_6:
+		case KeyEvent.VK_7:
+		case KeyEvent.VK_8:
+		case KeyEvent.VK_9:
+			int index = (e.getKeyChar() - '0') - 1;
+			if (index < freeBoxes.size()) {
+				Box box = freeBoxes.get(index);
+				if (box.x > 1024) {
+					return;
+				}
+				ghostBox = box.ghostBox();
+				ghostBox.ghost = true;
+				ghostBoxOffset = new Point(ghostBox.width * cellSize / 2, ghostBox.height * cellSize / 2);
+				ghostBox.x = x - ghostBoxOffset.x;
+				ghostBox.y = y - ghostBoxOffset.y;
+			}
 		}
 	}
 	
