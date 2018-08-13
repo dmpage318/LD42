@@ -115,7 +115,13 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 		g.setColor(Color.white);
 		g.fillRect(0, 0, width, height);
 		
-		if (gameState == State.LEVEL && currentLevel != null) currentLevel.paint(g);
+		if (gameState == State.LEVEL && currentLevel != null) {
+			try {
+				currentLevel.paint(g);
+			} catch (Exception e) {
+				
+			}
+		}
 		
 		Animation a;
 		for (int i = 0; i < activeAnimations.size(); i++) {
@@ -124,7 +130,11 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 			} catch (IndexOutOfBoundsException e) {
 				continue;
 			}
-			a.paint(g);
+			try {
+				a.paint(g);
+			} catch (Exception e) {
+				
+			}
 		}
 		//-----------------------------------------------
 		
@@ -147,7 +157,11 @@ public class LD42 implements KeyListener, MouseListener, MouseMotionListener, Mo
 	
 	public void physics(double dt) {
 		if(currentLevel != null) {
-			currentLevel.physics(dt);
+			try {
+				currentLevel.physics(dt);
+			} catch (Exception e) {
+				
+			}
 		}
 	}
 	

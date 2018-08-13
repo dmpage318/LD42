@@ -15,6 +15,7 @@ import TnT.ld.animation.VehicleExitAnimation;
 
 public class Level {
 	public boolean gameOver = false;
+	double boxDT = 3.5;
 	public boolean showGameOver = false;
 	public int cellSize = 40;
 	volatile int x, y;
@@ -59,8 +60,8 @@ public class Level {
 				conveyors.add(c);
 			}
 		}
-		
-		
+
+
 		conveyors.get(5).setNext(conveyors.get(0));
 		conveyors.get(0).setNext(conveyors.get(1));
 		conveyors.get(1).setNext(conveyors.get(6));
@@ -70,7 +71,7 @@ public class Level {
 		conveyors.get(3).setNext(conveyors.get(8));
 		conveyors.get(8).setNext(conveyors.get(9));
 		conveyors.get(9).setNext(conveyors.get(4));
-		*/
+		 */
 		int padding = (LD42.height-5*ConveyorSegment.height)/2;
 		for(int i = 4; i >= 0; i--) {
 			ConveyorSegment c = new ConveyorSegment(padding, padding + (ConveyorSegment.height+1) * i, 0, 1, false);
@@ -79,34 +80,36 @@ public class Level {
 			}
 			conveyors.add(c);
 		}
-		
-		
+
+
 		//Add permanent ones across the top.
 		ConveyorSegment last = null;
-		for(int x = padding+1 + ConveyorSegment.width; x < LD42.width+ConveyorSegment.width; x+= ConveyorSegment.width) {
+		for(int x = padding+1 + ConveyorSegment.width; x < LD42.width; x+= ConveyorSegment.width) {
 			ConveyorSegment next = new ConveyorSegment(x, padding, -1, 0, true);
 			next.setNext( last == null ? conveyors.get(4) : last);
 			last = next;
 			conveyors.add(last);
 		}
 		first = last; //the last one added is the first to get boxes
-		
+
 		newBox();
-		
+
 		vehicleX = padding + ConveyorSegment.width*2; // left side of the vehicle
 		vehicleY = (LD42.height + ConveyorSegment.height)/2; // center of the vehicle
 		vehicle = new Vehicle(10, 8, this);
 		vehicle.x = vehicleX;
 	}
-	
+
 	public void newBox() {
 		Box b = new Box(3, 3, this);
 		b.x = first.x + 5 + (3-b.width)*cellSize;
 		b.y = first.y + 5;
 		freeBoxes.add(b);
 		first.setBox(b);
+		timeToNextBox = Math.max(2.5, boxDT);
+		boxDT -= .25;
 	}
-	
+
 	public void paint(Graphics2D g) {
 		g.setColor(Color.RED);
 		g.setFont(new Font("Tahoma", Font.PLAIN, 25));
@@ -117,9 +120,12 @@ public class Level {
 			g.setFont(new Font("Tahoma", Font.BOLD, 40));
 			g.drawString("Game Over!", 314, 400);
 		}
+//		g.setFont(new Font("Tahoma", Font.PLAIN, 20));
+//		g.drawString(String.format("Next box in %.1fs", timeToNextBox), 800, 200);
+		g.setFont(new Font("Tahoma", Font.BOLD, 20));
 		vehicle.hover(ghostBox);
 		vehicle.paint(g);
-		
+
 		for (int i = 0; i < conveyors.size(); i++) {
 			conveyors.get(i).paint(g);
 		}
@@ -133,8 +139,8 @@ public class Level {
 			g.drawString("to rotate", 190, vehicleY + 30);
 		}
 	}
-	
-	double timeToNextBox = 2.5;
+
+	double timeToNextBox = 0;
 	public void physics(double dt) {
 		if (conveyors != null) {
 			for (int i = 0; i < freeBoxes.size(); i++) { 
@@ -153,20 +159,23 @@ public class Level {
 						freeBoxes.get(j).dead = true;
 						gameOver = true;
 						new VehicleExitAnimation(this).start();
+						ghostBox = null;
 						Thread.currentThread().suspend();
 					}
 				}
 			}
-	
+
 			timeToNextBox -= dt;
 			if(timeToNextBox <= 0) {
 				newBox();
-				timeToNextBox = 2.5;
 			}
 		}
 	}
-	
+
 	public void mousePressed(int x, int y) {
+		if (gameOver) {
+			return;
+		}
 		if (ghostBox != null) {
 			// already holding a box
 			readyToDrop = true;
@@ -189,8 +198,11 @@ public class Level {
 		}
 		readyToDrop = false;
 	}
-	
+
 	public void mouseReleased(int x, int y) {
+		if (gameOver) {
+			return;
+		}
 		if (ghostBox != null && readyToDrop) {
 			Point pv = vehicle.fit(ghostBox);
 			if (pv != null) {
@@ -200,7 +212,7 @@ public class Level {
 					if(ghostBox.ghostParent != null && ghostBox.ghostParent.conveyor != null) {
 						ghostBox.ghostParent.conveyor.boxRemoved(ghostBox.ghostParent);
 					}
-					
+
 				}
 				vehicle.add(ghostBox, pv);
 				ghostBox.ghost = false;
@@ -210,8 +222,11 @@ public class Level {
 			ghostBox = null;
 		}
 	}
-	
+
 	public void mouseMoved(int x, int y) {
+		if (gameOver) {
+			return;
+		}
 		this.x = x;
 		this.y = y;
 		if (ghostBox != null) {
@@ -220,7 +235,7 @@ public class Level {
 		}
 		readyToDrop = true;
 	}
-	
+
 	public void shipIt() {
 		int fill = 0;
 		for (int i = 0; i < vehicle.filled.length; i++) {
@@ -289,6 +304,9 @@ public class Level {
 	}
 
 	public void keyPressed(KeyEvent e) {
+		if (gameOver) {
+			return;
+		}
 		switch(e.getKeyCode()) {
 		case  KeyEvent.VK_TAB: //rotate
 			if (ghostBox != null) {
@@ -316,15 +334,8 @@ public class Level {
 				}
 			}
 			break;
-		case KeyEvent.VK_1:
-		case KeyEvent.VK_2:
-		case KeyEvent.VK_3:
-		case KeyEvent.VK_4:
-		case KeyEvent.VK_5:
-		case KeyEvent.VK_6:
-		case KeyEvent.VK_7:
-		case KeyEvent.VK_8:
-		case KeyEvent.VK_9:
+		}
+		if (Character.isDigit(e.getKeyChar())) { //doing it this way allows numpad use too
 			int index = (e.getKeyChar() - '0') - 1;
 			if (index < freeBoxes.size()) {
 				Box box = freeBoxes.get(index);
@@ -339,5 +350,5 @@ public class Level {
 			}
 		}
 	}
-	
+
 }
