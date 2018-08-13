@@ -25,7 +25,7 @@ public class Level {
 	ConveyorSegment first = null;
 	public int vehicleX, vehicleY;
 	public boolean shipmentInProgress;
-	
+	public int vehicleCount = 0;
 	public Level() {
 		int dx, dy;
 		/*
@@ -109,6 +109,8 @@ public class Level {
 		g.setColor(Color.RED);
 		g.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		g.drawString("Click to select a box and place it on the Truck. Don't let the boxes back up!", 60, 30);
+		g.setFont(new Font("Tahoma", Font.BOLD, 20));
+		g.drawString("Trucks sent: " + vehicleCount, 314, 200);
 		vehicle.hover(ghostBox);
 		vehicle.paint(g);
 		
@@ -245,6 +247,7 @@ public class Level {
 		System.out.println("New Vehicle has size: " + width + ", " + height);
 		Vehicle nv = new Vehicle(width, height, this);
 		vehicle = nv;
+		vehicleCount++;
 		new VehicleEnterAnimation(this).start();
 	}
 

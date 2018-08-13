@@ -73,7 +73,7 @@ public class Vehicle {
 		if (!level.shipmentInProgress) {
 			g.setColor(Color.red);
 			g.setFont(new Font("Tahoma", Font.BOLD, 20));
-			g.drawString(String.format("Vehicle total size: %d, Amount filled: %d, Space left: %d (%.1f%%)", width * height, filledCount, width * height - filledCount, (double) 100*(width * height - filledCount) / (width*height)), x, y - 60);
+			g.drawString(String.format("Truck total size: %d, Amount filled: %d, Space left: %d (%.1f%%)", width * height, filledCount, width * height - filledCount, (double) 100*(width * height - filledCount) / (width*height)), x, y - 60);
 			g.drawString("Press [space] to get new truck.",  x, y + height * level.cellSize + 60);
 			g.drawString("It will be smaller based on unused space.",  x, y + height * level.cellSize + 90);
 		}
