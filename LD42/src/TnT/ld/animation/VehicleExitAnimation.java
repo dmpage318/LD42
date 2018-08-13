@@ -35,6 +35,7 @@ public class VehicleExitAnimation extends Animation {
 			}
 		}
 		if (full) xTime = 0;
+		level.shipmentInProgress = true;
 	}
 	
 	public void update(double dt) {

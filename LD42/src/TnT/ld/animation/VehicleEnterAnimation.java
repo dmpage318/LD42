@@ -38,6 +38,7 @@ public class VehicleEnterAnimation extends Animation {
 	
 	public void finish() {
 		vehicle.x = level.vehicleX;
+		level.shipmentInProgress = false;
 	}
 	
 }

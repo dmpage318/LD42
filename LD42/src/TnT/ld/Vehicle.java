@@ -17,7 +17,7 @@ public class Vehicle {
 	Box hoverBox;
 	Point hoverLocation;
 	
-	public static double speed = 1000, accel = 4000;
+	public static double speed = 2000, accel = 4000;
 	
 	public Vehicle(int width, int height, Level level) {
 		this.width = width;

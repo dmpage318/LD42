@@ -21,6 +21,7 @@ public class Level {
 	ArrayList<ConveyorSegment> conveyors = new ArrayList<>();
 	ConveyorSegment first = null;
 	public int vehicleX, vehicleY;
+	public boolean shipmentInProgress;
 	
 	public Level() {
 		int dx, dy;
@@ -251,7 +252,7 @@ public class Level {
 			break;
 		case KeyEvent.VK_SPACE: //ship it!
 			//shipIt();
-			new VehicleExitAnimation(this).start();
+			if (!shipmentInProgress) new VehicleExitAnimation(this).start();
 			break;
 		}
 	}
