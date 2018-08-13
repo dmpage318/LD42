@@ -42,16 +42,18 @@ public class ConveyorSegment {
 		g.fillRect(x, y, width, height);
 		Shape currentClip = g.getClip();
 		g.setClip(x, y, width, height);
+		Color c1 = Color.LIGHT_GRAY;
+		Color c2 = Color.LIGHT_GRAY.darker();
 		if(dx != 0) {
 			boolean tog = false;
 			if(dx < 0) {
 				for(int x = startDrawingX; x < width; x += BAR_WIDTH, tog = !tog) {
-					g.setColor(tog ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+					g.setColor(tog ? c1 : c2);
 					g.fillRect(this.x+x, this.y+1, BAR_WIDTH, height-2);
 				}			
 			} else {
 				for(int x = width - startDrawingX; x >=-BAR_WIDTH; x -= BAR_WIDTH, tog = !tog) {
-					g.setColor(tog ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+					g.setColor(tog ? c1 : c2);
 					g.fillRect(this.x+x, this.y+1, BAR_WIDTH, height-2);
 				}	
 			}
@@ -59,12 +61,12 @@ public class ConveyorSegment {
 			boolean tog = false;
 			if(dy < 0) {
 				for(int y = startDrawingX; y < height; y += BAR_WIDTH, tog = !tog) {
-					g.setColor(tog ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+					g.setColor(tog ? c1 : c2);
 					g.fillRect(this.x+1, this.y+y, width-2, BAR_WIDTH);
 				}	
 			} else {
 				for(int y = height - startDrawingX; y >= -BAR_WIDTH; y -= BAR_WIDTH, tog = !tog) {
-					g.setColor(tog ? Color.LIGHT_GRAY : Color.DARK_GRAY);
+					g.setColor(tog ? c1 : c2);
 					g.fillRect(this.x+1, this.y+y, width-2, BAR_WIDTH);
 				}	
 			}
